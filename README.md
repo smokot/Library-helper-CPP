@@ -65,4 +65,10 @@ for (auto x : take)
 {
 	cout << x << endl;
 }
+
+//output: 
+123
+321
+456
+678
 ````
