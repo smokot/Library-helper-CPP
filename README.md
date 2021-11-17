@@ -1,4 +1,4 @@
-# Library-helper-C-
+# Library-helper-C++
 Библиотека для конвертации типов и остальные функции
 ` GetPixelColor_One ` - Получаем цвет пикселя первый вариант
 
@@ -12,3 +12,9 @@ cout << obj.r << " " << obj.g << " " << obj.b;
 
 
 ` GetPixelColor_Two ` - Получаем цвет пикселя второй вариант
+
+```
+SMOKOT smokot;
+std::tuple<int,int,int> take = smokot.GetPixelColor_Two(0, 0);
+cout << get<0>(take) << " " << get<1>(take) << " " << get<2>(take);
+ ```
