@@ -137,3 +137,9 @@ cout << take;
 SMOKOT smokot;
 smokot.msg_box("HELLO WORLD", "WARNING");
 ````
+
+` draw_dot ` - Рисует точку в указанных координатах
+````
+SMOKOT smokot;
+smokot.draw_dot(0, 10, (255, 255, 255), 10);
+````
