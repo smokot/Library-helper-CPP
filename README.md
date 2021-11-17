@@ -3,9 +3,9 @@
 ` GetPixelColor_One ` - Получаем цвет пикселя первый вариант
 
 ``` C++
-	GetPixelColor_One obj;
-	obj.GetColor(0, 0);
-	cout << obj.r << obj.g << obj.b;
+GetPixelColor_One obj;
+obj.GetColor(0, 0);
+cout << obj.r << obj.g << obj.b;
 ```
 
 
