@@ -55,3 +55,14 @@ HBITMAP bitmap = smokot.Screenshot(0, 0, 100, 100);
 smokot.SaveBitMap(bitmap, L"test.png");
 
 ````
+
+` Split ` - Split как в Python, C#, добавление в массив после разделителя
+````
+SMOKOT smokot;
+string word = "123.321.456.678";
+vector<string> take = smokot.split(word,'.');
+for (auto x : take)
+{
+	cout << x << endl;
+}
+````
