@@ -31,3 +31,18 @@ smokot.keyboard_write("Test of the WORLD");
 
 //output: Test of the WORLD
 ````
+` keyboard ` - Нажатия клавиш
+````
+SMOKOT smokot;
+smokot.keyboard(VK_F9);
+smokot.keyboard(VK_F9, KEYEVENTF_EXTENDEDKEY);
+
+````
+
+` LeftClick/RightClick ` - Нажатие мыши
+````
+SMOKOT smokot;
+smokot.LeftClick();
+smokot.RightClick();
+
+````
