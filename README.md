@@ -5,7 +5,9 @@
 ``` C++
 GetPixelColor_One obj;
 obj.GetColor(0, 0);
-cout << obj.r << obj.g << obj.b;
+cout << obj.r << " " << obj.g << " " << obj.b;
+
+//output 45 45 48
 ```
 
 
