@@ -143,3 +143,17 @@ smokot.msg_box("HELLO WORLD", "WARNING");
 SMOKOT smokot;
 smokot.draw_dot(0, 10, (255, 255, 255), 10);
 ````
+
+` draw_line ` - Рисует линию
+````
+SMOKOT smokot;
+smokot.draw_line(0, 0, 20, 20, (255, 255, 255), 10);
+````
+
+
+` draw_text ` - Рисует текст на экране
+````
+SMOKOT smokot;
+char text[] = "Garry";
+smokot.draw_text(500, 500, text);
+````
