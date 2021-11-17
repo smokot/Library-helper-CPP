@@ -1,7 +1,7 @@
 # Library-helper-C++
-Библиотека для конвертации типов и остальные функции 
+Library for Convert of types and other functions
 
-` GetPixelColor_One ` - Получаем цвет пикселя первый вариант
+` GetPixelColor_One ` - Get color of pixel (V1)
 
 ``` C++
 GetPixelColor_One obj;
@@ -12,7 +12,7 @@ cout << obj.r << " " << obj.g << " " << obj.b;
 ```
 
 
-` GetPixelColor_Two ` - Получаем цвет пикселя второй вариант
+` GetPixelColor_Two ` - Get color of pixel (V2)
 
 ```
 SMOKOT smokot;
@@ -23,7 +23,7 @@ cout << get<0>(take) << " " << get<1>(take) << " " << get<2>(take);
  ```
  
  
-` keyboard_write ` - Писать с клавиатуры программно
+` keyboard_write ` - Keyboard writing
 
 ````
 SMOKOT smokot;
@@ -31,7 +31,7 @@ smokot.keyboard_write("Test of the WORLD");
 
 //output: Test of the WORLD
 ````
-` keyboard ` - Нажатия клавиш
+` keyboard ` - Press keyboard
 ````
 SMOKOT smokot;
 smokot.keyboard(VK_F9);
@@ -39,7 +39,7 @@ smokot.keyboard(VK_F9, KEYEVENTF_EXTENDEDKEY);
 
 ````
 
-` LeftClick/RightClick ` - Нажатие мыши
+` LeftClick/RightClick ` - Mouse click
 ````
 SMOKOT smokot;
 smokot.LeftClick();
@@ -47,7 +47,7 @@ smokot.RightClick();
 
 ````
 
-` Screenshot ` - Скрин области экрана
+` Screenshot ` - Screen Region
 
 ````
 SMOKOT smokot;
@@ -56,7 +56,7 @@ smokot.SaveBitMap(bitmap, L"test.png");
 
 ````
 
-` Split ` - Split как в Python, C#, добавление в массив после разделителя
+` Split ` - Separator in array
 ````
 SMOKOT smokot;
 string word = "123.321.456.678";
@@ -73,7 +73,7 @@ for (auto x : take)
 678
 ````
 
-` int_to_char ` - Конвертация int в char
+` int_to_char ` - Convert int in char
 ````
 SMOKOT smokot;
 char * take = smokot.int_to_char(228);
@@ -84,7 +84,7 @@ cout << take;
 
 
 
-` int_to_string ` - Конвертация int в string 
+` int_to_string ` - Convert int in string 
 ````
 SMOKOT smokot;
 string take = smokot.int_to_string(228);
@@ -94,7 +94,7 @@ cout << take;
 ````
 
 
-` string_to_int ` - Конвертация string в int
+` string_to_int ` - Convert string in int
 ````
 SMOKOT smokot;
 int take = smokot.string_to_int("6363");
@@ -104,7 +104,7 @@ cout << take;
 ````
 
 
-` char_to_int ` - Конвертация char в int
+` char_to_int ` - Convert char in int
 ````
 SMOKOT smokot;
 int take = smokot.char_to_int("987");
@@ -113,7 +113,7 @@ cout << take;
 //output: 987
 ````
 
-` string_to_char ` - Конвертация string в char
+` string_to_char ` - Convert string in char
 ````
 SMOKOT smokot;
 char * take = smokot.string_to_char("987");
@@ -123,7 +123,7 @@ cout << take;
 ````
 
 
-` char_to_string ` - Конвертация string в char
+` char_to_string ` - Convert string in char
 ````
 SMOKOT smokot;
 string take = smokot.char_to_string("fafg");
@@ -138,20 +138,20 @@ SMOKOT smokot;
 smokot.msg_box("HELLO WORLD", "WARNING");
 ````
 
-` draw_dot ` - Рисует точку в указанных координатах
+` draw_dot ` - Draw dot in selection region
 ````
 SMOKOT smokot;
 smokot.draw_dot(0, 10, (255, 255, 255), 10);
 ````
 
-` draw_line ` - Рисует линию
+` draw_line ` - Draw line
 ````
 SMOKOT smokot;
 smokot.draw_line(0, 0, 20, 20, (255, 255, 255), 10);
 ````
 
 
-` draw_text ` - Рисует текст на экране
+` draw_text ` - Draw text on the Screen
 ````
 SMOKOT smokot;
 char text[] = "Garry";
