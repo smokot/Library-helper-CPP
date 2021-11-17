@@ -72,3 +72,68 @@ for (auto x : take)
 456
 678
 ````
+
+` int_to_char ` - Конвертация int в char
+````
+SMOKOT smokot;
+char * take = smokot.int_to_char(228);
+cout << take;
+
+//output: "228"
+````
+
+
+
+` int_to_string ` - Конвертация int в string 
+````
+SMOKOT smokot;
+string take = smokot.int_to_string(228);
+cout << take;
+
+//output: "228"
+````
+
+
+` string_to_int ` - Конвертация string в int
+````
+SMOKOT smokot;
+int take = smokot.string_to_int("6363");
+cout << take;
+
+//output: 6363
+````
+
+
+` char_to_int ` - Конвертация char в int
+````
+SMOKOT smokot;
+int take = smokot.char_to_int("987");
+cout << take;
+
+//output: 987
+````
+
+` string_to_char ` - Конвертация string в char
+````
+SMOKOT smokot;
+char * take = smokot.string_to_char("987");
+cout << take;
+
+//output: "987"
+````
+
+
+` char_to_string ` - Конвертация string в char
+````
+SMOKOT smokot;
+string take = smokot.char_to_string("fafg");
+cout << take;
+
+//output: "fafg"
+````
+
+` msg_box ` - MessageBox 
+````
+SMOKOT smokot;
+smokot.msg_box("HELLO WORLD", "WARNING");
+````
