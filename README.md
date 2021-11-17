@@ -46,3 +46,12 @@ smokot.LeftClick();
 smokot.RightClick();
 
 ````
+
+` Screenshot ` - Скрин области экрана
+
+````
+SMOKOT smokot;
+HBITMAP bitmap = smokot.Screenshot(0, 0, 100, 100); 
+smokot.SaveBitMap(bitmap, L"test.png");
+
+````
