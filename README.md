@@ -123,7 +123,7 @@ cout << take;
 ````
 
 
-` char_to_string ` - Convert string in char
+` char_to_string ` - Convert char in string
 ````
 SMOKOT smokot;
 string take = smokot.char_to_string("fafg");
