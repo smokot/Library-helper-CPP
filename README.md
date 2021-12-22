@@ -1,6 +1,11 @@
 # Library-helper-C++
 Library for Convert of types and other functions
 
+`1)mouse/keyboard Emulation`
+`2)ScreenShot`
+`3)NETWORK commands`
+
+
 ` GetPixelColor_One ` - Get color of pixel (V1)
 
 ``` C++
@@ -170,7 +175,8 @@ smokot.b64_encode(text, text.size());
 SMOKOT smokot;
 smokot.create_server("127.0.0.1", 25565, SOCK_STREAM);
 smokot.connect("127.0.0.1", 25565, SOCK_STREAM);
-smokot.sock_send(socket, "something");
+smokot.sock_send_ss(socket, stringstream);
+smokot.sock_send_c(socket, char *);
 smokot.sock_recv(buffer, socket);
 smokot.accept_connection();
 ````
