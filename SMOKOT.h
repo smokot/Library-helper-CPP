@@ -1,4 +1,9 @@
 #pragma once
+#pragma comment(lib,"ws2_32.lib")
+#include <WS2tcpip.h>
+#include "winsock2.h"
+#pragma warning(disable:4996)
+
 
 #include "string"
 #include "windows.h"
@@ -31,6 +36,147 @@ private:
 
 class SMOKOT {
 public:
+
+	size_t b64_encoded_size(size_t inlen)
+	{
+		size_t ret;
+
+		ret = inlen;
+		if (inlen % 3 != 0)
+			ret += 3 - (inlen % 3);
+		ret /= 3;
+		ret *= 4;
+
+		return ret;
+	}
+
+	char* b64_encode(const char* in, size_t len)
+	{
+		const char b64chars[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
+		char * out;
+		size_t  elen;
+		size_t  i;
+		size_t  j;
+		size_t  v;
+
+		if (in == NULL || len == 0)
+			return NULL;
+
+		elen = b64_encoded_size(len);
+		out = (char*)malloc(elen + 1);
+		out[elen] = '\0';
+
+		for (i = 0, j = 0; i < len; i += 3, j += 4) {
+			v = in[i];
+			v = i + 1 < len ? v << 8 | in[i + 1] : v << 8;
+			v = i + 2 < len ? v << 8 | in[i + 2] : v << 8;
+
+			out[j] = b64chars[(v >> 18) & 0x3F];
+			out[j + 1] = b64chars[(v >> 12) & 0x3F];
+			if (i + 1 < len) {
+				out[j + 2] = b64chars[(v >> 6) & 0x3F];
+			}
+			else {
+				out[j + 2] = '=';
+			}
+			if (i + 2 < len) {
+				out[j + 3] = b64chars[v & 0x3F];
+			}
+			else {
+				out[j + 3] = '=';
+			}
+		}
+
+		return out;
+	}
+
+
+
+
+
+
+
+	SOCKET get_sock()
+	{
+		return sock;
+	}
+
+	void create_server(const char * ip, int port, int connection_type)
+	{
+		if (WSAStartup(MAKEWORD(2, 1), &WS) != 0) {
+			
+		}
+		else {
+			connection_type_ = connection_type;
+			addr.sin_addr.S_un.S_addr = inet_addr(ip);
+
+			addr.sin_port = htons(port);
+			addr.sin_family = AF_INET;
+			
+			
+			
+
+			sock = socket(AF_INET, connection_type, NULL);
+
+			size = sizeof(addr);
+
+			bind(sock, (sockaddr*)&addr, size);
+
+			listen(sock, SOMAXCONN);
+
+
+		}
+		
+	}
+
+	void connect_server(char* ip, int port, int connection_type)
+	{
+		if (WSAStartup(MAKEWORD(2, 1), &WS) != 0) {
+
+		}
+		else {
+
+			addr.sin_addr.S_un.S_addr = inet_addr(ip);
+
+			addr.sin_port = htons(port);
+			addr.sin_family = AF_INET;
+		
+			sock = socket(AF_INET, connection_type, NULL);
+
+			size = sizeof(addr);	
+			
+			connect(sock, (sockaddr*)&addr, size);
+		}
+	}
+	void sock_send(SOCKET to_send, const char * x)
+	{
+		send(to_send, x, sizeof(x), 0);
+	}
+
+	void sock_send(SOCKET to_send, stringstream x)
+	{
+		send(to_send, x.str().c_str(), x.str().length(), 0);
+	}
+
+	int sock_recv(char* x,SOCKET s)
+	{
+		int res = recv(s, x, sizeof(x), 0);
+		return res;
+	}
+	SOCKET accept_connection()
+	{
+		res_accept_connection = accept(sock, (sockaddr*)&addr, &size);
+		return res_accept_connection;
+	}
+	sockaddr* get_addr()
+	{
+		return (sockaddr*)&addr;
+	}
+	int get_addr_size()
+	{
+		return size;
+	}
+
 
 	void keyboard_write(string word)
 	{
@@ -318,7 +464,14 @@ public:
 		TextOut(dc, x, y, str, strlen(str));
 		
 	}
-
+	private:
+		WSAData WS;
+		SOCKADDR_IN addr;
+		SOCKET sock;
+		int size;
+		int connection_type_;
+		SOCKET res_accept_connection;
+		
 };
 
 
