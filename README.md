@@ -3,7 +3,7 @@ Library for Convert of types and other functions
 
 `1)mouse/keyboard Emulation`
 
-`2)ScreenShot`
+`2)Work with Screen`
 
 `3)NETWORK commands`
 
