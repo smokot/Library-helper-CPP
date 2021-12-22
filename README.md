@@ -157,3 +157,22 @@ SMOKOT smokot;
 char text[] = "Garry";
 smokot.draw_text(500, 500, text);
 ````
+
+` b64_encode ` - Encode string to Base64
+````
+SMOKOT smokot;
+string text = "dog";
+smokot.b64_encode(text, text.size());
+````
+
+` create_sever/connect_server/sock_send/sock_recv/accept_connection ` - Create new TCP/UDP server
+````
+SMOKOT smokot;
+smokot.create_server("127.0.0.1", 25565, SOCK_STREAM);
+smokot.connect("127.0.0.1", 25565, SOCK_STREAM);
+smokot.sock_send(socket, "something");
+smokot.sock_recv(buffer, socket);
+smokot.accept_connection();
+````
+
+
