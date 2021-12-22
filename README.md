@@ -7,6 +7,8 @@ Library for Convert of types and other functions
 
 `3)NETWORK commands`
 
+`4)Convertation of default datatypes
+
 and other..
 
 ` GetPixelColor_One ` - Get color of pixel (V1)
