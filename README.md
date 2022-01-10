@@ -44,8 +44,8 @@ smokot.keyboard_write("Test of the WORLD");
 ` keyboard ` - Press keyboard
 ````
 SMOKOT smokot;
-smokot.keyboard(VK_F9);
-smokot.keyboard(VK_F9, KEYEVENTF_EXTENDEDKEY);
+smokot.keyboard(VK_F9, true);
+smokot.keyboard(VK_F9, false);
 
 ````
 
