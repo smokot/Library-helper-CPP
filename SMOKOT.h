@@ -230,28 +230,18 @@ public:
 		
 	}
 	//Example: key = VK_F9, flag = KEYEVENTF_EXTENDKEY;
-	void keyboard(DWORD key, DWORD flag)
-	{
-		
-		INPUT input;
-		input.type = INPUT_KEYBOARD;
-		input.ki.wVk = key;
-		input.ki.dwFlags = flag;
-		SendInput(1, &input, sizeof(input));	
-	}
+	
 	//Example: key = VK_F9
-	void keyboard(DWORD key)
+	void keyboard(DWORD key, BOOL flag)
 	{
+		UINT scan = MapVirtualKey(key, MAPVK_VK_TO_VSC);
 		INPUT input;
 		input.type = INPUT_KEYBOARD;
-		input.ki.wVk = key;
-		input.ki.dwFlags = KEYEVENTF_EXTENDEDKEY;
+		input.ki.wScan = scan;
+		input.ki.dwFlags = KEYEVENTF_SCANCODE | (flag ? KEYEVENTF_KEYUP : 0);
 
 		SendInput(1, &input, sizeof(input));
 
-		input.ki.wVk = key;
-		input.ki.dwFlags = KEYEVENTF_KEYUP;
-		SendInput(1, &input, sizeof(input));
 	}
 
 
