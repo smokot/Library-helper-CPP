@@ -5,7 +5,7 @@ Library for Convert of types and other functions
 
 `2)Work with Screen`
 
-`3)NETWORK commands`
+`3)NETWORK TCP-UDP/ip commands`
 
 `4)Convertation of default datatypes`
 
