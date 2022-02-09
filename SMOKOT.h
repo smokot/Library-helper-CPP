@@ -4,7 +4,7 @@
 #include "winsock2.h"
 #pragma warning(disable:4996)
 
-
+#include <functional>
 #include "string"
 #include "windows.h"
 #include "sstream"
@@ -463,5 +463,236 @@ public:
 		SOCKET res_accept_connection;
 		
 };
+
+static HWND hEdit = NULL;
+HINSTANCE savehinst = NULL;
+static HWND hButton = NULL;
+static HWND hButton2 = NULL;
+HWND hEdit2 = NULL;
+
+
+
+
+
+
+
+
+
+
+
+
+
+class BUTTON {
+public:
+	COLORREF background_color = RGB(255, 0, 255);
+	COLORREF text_color = RGB(255,255,0);
+	int text_x=0, text_y=0;
+	int height = 100;
+	int width = 100;
+	int x = 10;
+	int y = 10;
+	DWORD flags_style = WS_CHILD | WS_VISIBLE | WS_BORDER | BS_OWNERDRAW;
+	const char* button_text = "CLICK";
+	int text_length=5;
+	HMENU onclick_number = NULL;
+	function<void()>onclick_func;
+	HWND button_hwnd;
+	void onclick_do_action(){
+		onclick_func();
+	}
+	HWND return_hwnd(){
+		return button_hwnd;
+	}
+private:
+	
+};
+
+
+vector<BUTTON>all_buttons;
+vector<HWND>all_hwnds;
+int counter = 0;
+LRESULT WINAPI WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lparam)
+{
+
+
+
+	switch (uMsg)
+	{
+		case WM_CTLCOLORSTATIC :
+		{
+			SetTextColor(GetDC(all_hwnds[0]), all_buttons[0].text_color);
+			
+		}
+		case WM_CTLCOLORBTN:
+		{
+		
+			/*for (int i = counter; i < all_buttons.size(); i++)
+			{
+				if (counter >= all_buttons.size())counter = 0;
+				HDC hdcButton = GetDC(all_hwnds[i]);
+				HBRUSH hb = CreateSolidBrush((all_buttons[i].background_color));
+				SetBkColor(hdcButton, all_buttons[i].background_color);
+				SetTextColor(hdcButton, RGB(255, 255, 255));
+				TextOut(hdcButton, 5, 5, "HALO BICH", 10);
+				counter++;
+			
+				return (long)hb;
+			}*/
+			/*for (int i = 0; i < all_hwnds.size(); i++)
+			{
+				RECT rect; GetClientRect(all_hwnds[i], &rect);
+				HBRUSH brush = CreateSolidBrush(all_buttons[i].background_color);
+
+				FillRect(GetDC(all_hwnds[i]), &rect, brush);
+				SetTextColor(GetDC(all_hwnds[i]), all_buttons[i].text_color);
+				TextOut(GetDC(all_hwnds[i]), all_buttons[i].text_x, all_buttons[i].text_y, all_buttons[i].button_text, all_buttons[i].text_length);
+				
+				
+				
+			}*/
+
+			
+			TextOut(GetDC(all_hwnds[0]), all_buttons[0].text_x, all_buttons[0].text_y, all_buttons[0].button_text, all_buttons[0].text_length);
+
+
+			break;
+		}
+
+		case WM_PAINT:
+		{
+			PAINTSTRUCT ps;
+			
+			BeginPaint(hwnd, &ps);
+			
+			
+			EndPaint(hwnd, &ps);
+		}
+
+		
+
+
+
+		case WM_CREATE:
+		{
+
+			all_hwnds.clear();
+			for (int i = 0; i < all_buttons.size(); i++)
+			{
+				HWND take = CreateWindow("BUTTON", all_buttons[i].button_text, all_buttons[i].flags_style
+					, all_buttons[i].x, all_buttons[i].y, all_buttons[i].width, all_buttons[i].height, hwnd, HMENU(i), NULL, NULL);
+				all_buttons[i].button_hwnd = take;
+				all_hwnds.push_back(take);
+
+			}
+
+		}
+		return 0;
+
+		case WM_COMMAND:
+		{
+			for (int i = 0; i < all_buttons.size(); i++)
+			{
+				if (wParam == (int)all_buttons[i].onclick_number)
+				{
+					all_buttons[i].onclick_do_action();
+				}
+			}
+
+			break;
+		}
+
+		case WM_DESTROY:
+		{
+			PostQuitMessage(EXIT_SUCCESS);
+		}
+		return 0;
+	}
+	return DefWindowProc(hwnd, uMsg, wParam, lparam);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+class FORM : BUTTON{
+public:
+	
+	
+
+	
+	COLORREF background_color = RGB(255,255,255);
+	const char* window_name;
+	int height = 500;
+	int width = 500;
+	int x = 400;
+	int y = 400;
+	HWND main_hwnd = NULL;
+	DWORD flags_style = WS_OVERLAPPEDWINDOW;
+
+
+
+	void AddElement(BUTTON btn)
+	{
+		all_buttons.push_back(btn);
+	}
+
+	int CALLBACK wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR szCmdLine, int nCmdShow)
+	{
+		WNDCLASSEX wc{ sizeof(WNDCLASSEX) };
+		
+		MSG msg{};
+		HWND hwnd{};
+		HBRUSH background = CreateSolidBrush(background_color);
+		wc.cbClsExtra = 0;
+		wc.cbWndExtra = 0;
+		wc.hbrBackground = reinterpret_cast<HBRUSH>(background);
+		wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
+		wc.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
+		wc.hIconSm = LoadIcon(nullptr, IDI_APPLICATION);
+		wc.hInstance = hInstance;
+		wc.lpfnWndProc = WndProc;
+		wc.lpszClassName = "MyappClass";
+		wc.lpszMenuName = nullptr;
+		wc.style = CS_VREDRAW | CS_HREDRAW;
+
+		if (!RegisterClassEx(&wc))
+			return EXIT_FAILURE;
+
+		hwnd = CreateWindow(wc.lpszClassName, window_name, flags_style, x, y, width, height, nullptr, nullptr, wc.hInstance, nullptr);
+
+		
+		ShowWindow(hwnd, nCmdShow);
+		UpdateWindow(hwnd);
+
+		main_hwnd = hwnd;
+
+
+		while (GetMessage(&msg, nullptr, 0, 0))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+		return static_cast<int>(msg.wParam);
+	}
+	
+
+private:
+
+	
+	
+
+
+	
+};
+
 
 
