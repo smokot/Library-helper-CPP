@@ -10,7 +10,7 @@
 #include "sstream"
 #include "vector"
 #include "tuple"
-
+#include "ctime"
 #include <gdiplus.h>
 #pragma comment(lib, "GdiPlus.lib")
 using namespace std;
@@ -177,7 +177,6 @@ public:
 		return size;
 	}
 
-
 	void keyboard_write(string word)
 	{
 		INPUT input;
@@ -238,6 +237,7 @@ public:
 		INPUT input;
 		input.type = INPUT_KEYBOARD;
 		input.ki.wScan = scan;
+		
 		input.ki.dwFlags = KEYEVENTF_SCANCODE | (flag ? KEYEVENTF_KEYUP : 0);
 
 		SendInput(1, &input, sizeof(input));
@@ -638,17 +638,28 @@ public:
 	HWND main_hwnd = NULL;
 	DWORD flags_style = WS_OVERLAPPEDWINDOW;
 
-
+	void start()
+	{
+		wWinMain(hInstance, NULL, szCmdLine, nCmdShow);
+	}
 
 	void AddElement(BUTTON btn)
 	{
 		all_buttons.push_back(btn);
 	}
 
+	
+	
+
+private:
+	HINSTANCE hInstance = NULL;
+	PWSTR szCmdLine = NULL;
+	int nCmdShow = 1;
+	
 	int CALLBACK wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR szCmdLine, int nCmdShow)
 	{
 		WNDCLASSEX wc{ sizeof(WNDCLASSEX) };
-		
+
 		MSG msg{};
 		HWND hwnd{};
 		HBRUSH background = CreateSolidBrush(background_color);
@@ -669,7 +680,7 @@ public:
 
 		hwnd = CreateWindow(wc.lpszClassName, window_name, flags_style, x, y, width, height, nullptr, nullptr, wc.hInstance, nullptr);
 
-		
+
 		ShowWindow(hwnd, nCmdShow);
 		UpdateWindow(hwnd);
 
@@ -683,16 +694,165 @@ public:
 		}
 		return static_cast<int>(msg.wParam);
 	}
+
+
+
+	
+
+};
+
+float main_pressed = clock(); // Время нажатия
+float time_pressed = clock(); // Время нажатия
+float save_time = 0;
+int counter_start = 0;
+bool hidden_press = false;
+vector<int>keys; // Клавиши
+vector<int>time_to_press; // Время нажатий клавиш
+bool flag_active = true; // Контроль записи нажатий
+PKBDLLHOOKSTRUCT pHook; // КНОПКА 
+
+
+HHOOK hook; //
+float end_pressed = 0;
+LRESULT CALLBACK toHook(int iCode, WPARAM wParam, LPARAM lParam)
+{
+	switch (wParam)
+	{
+		
+		case WM_KEYDOWN:
+		{
+			if (hidden_press) {
+				end_pressed = clock();
+				time_pressed = end_pressed - main_pressed;
+				time_to_press.push_back(time_pressed);
+				keys.push_back(127);
+				main_pressed = clock();
+				hidden_press = false;
+			}
+
+			
+			if (counter_start < 1) {
+				main_pressed = clock();
+				counter_start++;
+			}
+			/*else {
+				
+				time_pressed = clock();
+				save_time += time_pressed-main_pressed;
+			}*/
+			
+			
+			
+			
+			
+			
+			
+			//cout << "key: " << (char)pHook->vkCode << " time: " << time_pressed << " mlsek" << endl;
+			
+			
+			
+
+			
+			break;
+		}
+		
+		case WM_KEYUP:
+		{
+			if (hidden_press) {
+				end_pressed = clock();
+				time_pressed = end_pressed - main_pressed;
+				time_to_press.push_back(time_pressed * 1);
+				keys.push_back(pHook->vkCode);
+			}
+			else {
+				pHook = (PKBDLLHOOKSTRUCT)lParam;
+
+				if (pHook->vkCode == 90) {
+					cout << "END RECORDING\n";
+					UnhookWindowsHookEx(hook);
+					PostQuitMessage(0);
+					break;
+				}
+
+				end_pressed = clock();
+
+				time_pressed = end_pressed - main_pressed;
+				time_to_press.push_back(time_pressed * 1);
+				keys.push_back(pHook->vkCode);
+				//cout << time_pressed <<endl;
+				main_pressed = clock();
+				//counter_start = 0;
+				hidden_press = true;
+				save_time = 0;
+			}
+			
+			break;
+		}
+		
+		
+	}
+	return CallNextHookEx(NULL, iCode, wParam, lParam);
+}
+
+
+class KEYBOARD {
+public:
+	
+	
+	void start_record()
+	{
+		wWinMain(hInstance, NULL, szCmdLine, nCmdShow);
+	}
+	void stop_record()
+	{
+		flag_active = false;
+	}
+
+	void play_record()
+	{
+		SMOKOT smokot;
+		if (keys.size() == time_to_press.size())
+		{
+			cout << "ALL GOOD";
+		}
+		else {
+			cout << "SHIT";
+		}
+		for (int i = 0; i < keys.size(); i++)
+		{
+			
+			smokot.keyboard(keys[i], false);
+			Sleep(time_to_press[i]);
+			smokot.keyboard(keys[i], true);
+
+		}
+	}
+	
 	
 
 private:
+	HINSTANCE hInstance = NULL;
+	PWSTR szCmdLine = NULL;
+	int nCmdShow = 1;
+	
 
 	
-	
 
 
+	int CALLBACK wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR szCmdLine, int nCmdShow)
+	{
+		MSG msg{};
+		time_pressed = clock();
+		
+		hook = SetWindowsHookEx(WH_KEYBOARD_LL, toHook, 0, 0);
+		while (GetMessage(&msg, 0, 0, 0))
+		{
+
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+		return static_cast<int>(msg.wParam);
+	}
 	
 };
-
-
 
