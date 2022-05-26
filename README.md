@@ -1,4 +1,4 @@
-# Library-helper-C++
+# Library-helper-C++ SANYA LOH
 Library for Convert of types and other functions
 
 `1)mouse/keyboard Emulation`
