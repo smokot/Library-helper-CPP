@@ -3,22 +3,26 @@
 #include <WS2tcpip.h>
 #include "winsock2.h"
 #pragma warning(disable:4996)
-
+#include "iostream"
 #include <functional>
+#include "fstream"
 #include "string"
 #include "windows.h"
 #include "sstream"
 #include "vector"
 #include "tuple"
+#include "string"
 #include "ctime"
 #include <gdiplus.h>
 #pragma comment(lib, "GdiPlus.lib")
 using namespace std;
 using namespace Gdiplus;
+
+typedef vector<vector<float>>matrix;
 static const GUID png =
 { 0x557cf406, 0x1a04, 0x11d3, { 0x9a, 0x73, 0x00, 0x00, 0xf8, 0x1e, 0xf3, 0x2e } };
 
-struct GetPixelColor_One {
+struct  {
 public:
 	int r, g, b;
 	void GetColor(int x, int y)
@@ -32,10 +36,196 @@ public:
 private:
 	COLORREF ref;
 	int x, y;
-};
+}GetPixelColor_One;
 
 class SMOKOT {
 public:
+
+	vector<int> min_nums(vector<int>nums)
+	{
+		vector<int> res = { nums[0] };
+		int save = 0;
+		for (int i = 0; i < nums.size(); i++)
+		{
+			if (nums[i] < res[0]) {
+				res[0] = nums[i];
+				save = i;
+			}
+
+		}
+		res.push_back(save);
+		return res;
+	}
+
+	float Monochrome(COLORREF cr)
+	{
+		// два любых опорных цвета
+		const COLORREF black = 0;
+		const COLORREF white = 0x00ffffff;
+		const COLORREF gray = RGB(20, 20, 20);
+		const COLORREF gray2 = RGB(70, 70, 70);
+		const COLORREF gray3 = RGB(120, 120, 120);
+
+		// квадрат расстояния до первой опорной точки
+		int blackR = int(GetRValue(cr)) - int(GetRValue(black));
+		int blackG = int(GetGValue(cr)) - int(GetGValue(black));
+		int blackB = int(GetBValue(cr)) - int(GetBValue(black));
+		unsigned blackDist = blackR * blackR + blackG * blackG + blackB * blackB;
+
+		// квадрат расстояния до второй опорной точки
+		int whiteR = int(GetRValue(cr)) - int(GetRValue(white));
+		int whiteG = int(GetGValue(cr)) - int(GetGValue(white));
+		int whiteB = int(GetBValue(cr)) - int(GetBValue(white));
+		unsigned whiteDist = whiteR * whiteR + whiteG * whiteG + whiteB * whiteB;
+
+		// квадрат расстояния до третьей опорной точки
+		int grayR = int(GetRValue(cr)) - int(GetRValue(gray));
+		int grayG = int(GetGValue(cr)) - int(GetGValue(gray));
+		int grayB = int(GetBValue(cr)) - int(GetBValue(gray));
+		unsigned grayDist = grayR * grayR + grayG * grayG + grayB * grayB;
+
+		int grayR2 = int(GetRValue(cr)) - int(GetRValue(gray2));
+		int grayG2 = int(GetGValue(cr)) - int(GetGValue(gray2));
+		int grayB2 = int(GetBValue(cr)) - int(GetBValue(gray2));
+		unsigned grayDist2 = grayR2 * grayR2 + grayG2 * grayG2 + grayB2 * grayB2;
+
+		int grayR3 = int(GetRValue(cr)) - int(GetRValue(gray3));
+		int grayG3 = int(GetGValue(cr)) - int(GetGValue(gray3));
+		int grayB3 = int(GetBValue(cr)) - int(GetBValue(gray3));
+		unsigned grayDist3 = grayR3 * grayR3 + grayG3 * grayG3 + grayB3 * grayB3;
+
+
+		if (blackDist < whiteDist &&  blackDist < grayDist && blackDist < grayDist2 && blackDist < grayDist3) {
+			return 1;
+		}
+		else if (whiteDist < blackDist && whiteDist < grayDist && whiteDist < grayDist2 && whiteDist < grayDist3) {
+			return 2;
+		}
+		else if (grayDist < blackDist && grayDist < whiteDist && grayDist < grayDist2 && grayDist < grayDist3) {
+			return 3;
+		}
+		else if (grayDist2 < blackDist && grayDist2 < whiteDist && grayDist2 < grayDist && grayDist2 < grayDist3) {
+			return 4;
+		}
+		else if (grayDist3 < blackDist && grayDist3 < whiteDist && grayDist3 < grayDist && grayDist3 < grayDist2) {
+			return 5;
+		}
+		else {
+			return 0;
+		}
+
+		/*vector<int>vec;
+		vec.push_back(blackDist);
+		vec.push_back(whiteDist);
+		vec.push_back(grayDist);
+		vec.push_back(grayDist2);
+		vec.push_back(grayDist3);
+		
+		// проверяем какое расстояние меньше
+		vector<int>result = min_nums(vec);
+		if (result[1] == 0) {
+			return 1;
+		}
+		if (result[1] == 1) {
+			return 2;
+		}
+		if (result[1] == 2) {
+			return 3;
+		}
+		if (result[1] == 3) {
+			return 4;
+		}
+		if (result[1] == 4) {
+			return 5;
+		}*/
+		
+		
+		//return (whiteDist < blackDist) ? 0 : 1;
+	}
+
+	//-------------------------------------------------------------------------------------------------
+	// преобразовании горизонтальной пиксельной линии в текстовую строку
+	//-------------------------------------------------------------------------------------------------
+	void TranslateLine(COLORREF* line, int cx, std::string& str)
+	{
+		// очищаем строку
+		str.clear();
+
+		// пробегаемся по всем пикселях одной горизонтальной линии картинки
+		for (int i = 0; i < cx; i++)
+		{
+			// добавляем в строку '0' или '1' в зависимости от цвета пикселя (заменить ' ' на '0')
+			if (Monochrome(line[i]) == 0) {
+				str.push_back('0');
+			}
+			if (Monochrome(line[i]) == 1) {
+				str.push_back('0');
+			}
+			if (Monochrome(line[i]) == 2) {
+				str.push_back('1');
+			}
+			if (Monochrome(line[i]) == 3) {
+				str.push_back('2');
+			}
+			if (Monochrome(line[i]) == 4) {
+				str.push_back('3');
+			}
+			if (Monochrome(line[i]) == 5) {
+				str.push_back('4');
+			}
+			//str.push_back(Monochrome(line[i]) ? '1' : '0'/*'0'*/);
+		}
+	}
+
+	//-------------------------------------------------------------------------------------------------
+	// преобразование картинки в текст
+	//-------------------------------------------------------------------------------------------------
+	void Bitmap_To_Txt(HBITMAP hbmp, std::string& text)
+	{
+		// очищаем строку
+		text.clear();
+
+		// достаём размеры картинки
+		BITMAP bm = {};
+		GetObject(hbmp, sizeof(bm), &bm);
+
+		// небольшая проверка
+		if (bm.bmHeight <= 0 || bm.bmWidth <= 0)
+			return;
+
+		// буфер под горизонтальную линию картинки
+		std::vector<char> line;
+		line.resize(bm.bmWidthBytes);
+
+		//
+		HDC hDC = GetDC(0);
+		//
+		BITMAPINFO bmi = {};
+		bmi.bmiHeader.biSize = sizeof(bmi.bmiHeader);
+		bmi.bmiHeader.biWidth = bm.bmWidth;
+		bmi.bmiHeader.biHeight = bm.bmHeight;
+		bmi.bmiHeader.biPlanes = 1;
+		bmi.bmiHeader.biBitCount = 32;
+		bmi.bmiHeader.biCompression = BI_RGB;
+		bmi.bmiHeader.biSizeImage = bm.bmWidth * bm.bmHeight * 4;
+
+		// пробегаемся по всем горизонтальным линиям картинки
+		for (int i = 0; i < bm.bmHeight; i++)
+		{
+			// чтение одной горизонтальной линии (bm.bmHeight-i-1 - вертикальное отражение)
+			GetDIBits(hDC, hbmp, bm.bmHeight - i - 1, 1, line.data(), &bmi, DIB_RGB_COLORS);
+
+			// формирование из линии текстовой строки
+			std::string str;
+			TranslateLine((COLORREF*)line.data(), bm.bmWidth, str);
+
+			// формирование всего текста
+			text += str + "\n";
+		}
+
+		ReleaseDC(0, hDC);
+	}
+
 
 	size_t b64_encoded_size(size_t inlen)
 	{
@@ -90,8 +280,41 @@ public:
 		return out;
 	}
 
-
-
+	int char_number(char x)
+	{
+		switch (x) {
+		case '0':
+			return 0;
+			break;
+		case '1':
+			return 1;
+			break;
+		case '2':
+			return 2;
+			break;
+		case '3':
+			return 3;
+			break;
+		case '4':
+			return 4;
+			break;
+		case '5':
+			return 5;
+			break;
+		case '6':
+			return 6;
+			break;
+		case '7':
+			return 7;
+			break;
+		case '8':
+			return 8;
+			break;
+		case '9':
+			return 9;
+			break;
+		}
+	}
 
 
 
@@ -299,6 +522,8 @@ public:
 
 	HBITMAP Screenshot(int x1, int y1, int x2, int y2) {
 		
+		x2 = x2 - x1;
+		y2 = y2 - y1;
 
 		HDC scrdc, memdc;
 		HBITMAP membit;
@@ -309,11 +534,18 @@ public:
 		membit = CreateCompatibleBitmap(scrdc, x2, y2);
 		SelectObject(memdc, membit);
 
+		
 
 		BitBlt(memdc, 0, 0, x2, y2, scrdc, x1, y1, SRCCOPY);
+
+		//BitBlt(memdc, 0, 0, x2, y2, scrdc, x1, y1, SRCCOPY);
 		HBITMAP hBitmap;
 		hBitmap = (HBITMAP)SelectObject(memdc, membit);
-		//DeleteObject(hBitmap);
+
+		
+		ReleaseDC(NULL, scrdc);
+		DeleteDC(memdc);
+		
 		return hBitmap;
 	}
 
@@ -382,6 +614,13 @@ public:
 	}
 
 	int char_to_int(const char * x)
+	{
+		int result = 0;
+		result = atoi(x);
+		return result;
+	}
+
+	int char_to_int(char* x)
 	{
 		int result = 0;
 		result = atoi(x);
@@ -856,3 +1095,390 @@ private:
 	
 };
 
+
+
+              //-----NEURO-----//
+//------------------------------------------//
+
+class Neuro{
+public:	
+
+	float relu2deriv(float x)
+	{
+		return (x > 0);
+	}
+
+	float relu(float x)
+	{
+		return (x > 0) * x;	
+	}
+
+	template<typename numbers>
+	vector<vector<numbers>> transpon(vector<vector<numbers>>vec, int size)
+	{
+		vector<vector<numbers>>result;
+		result.resize(size);
+		for (int i = 0; i < vec[0].size(); i++)
+		{
+			for (int j = 0; j < vec.size(); j++)
+			{
+				result[i].push_back(vec[j][i]);
+			}
+		}
+
+		return result;
+	}
+
+	template<typename numbers>
+	vector<numbers> transpon(vector<numbers>vec)
+	{
+		vector<numbers>result;
+		result.resize(vec.size());
+
+		for (int i = 0; i < vec[0].size(); i++)
+		{
+			for (int j = 0; j < vec.size(); j++)
+			{
+				result[i].push_back(vec[j][i]);
+			}
+		}
+
+		return result;
+	}
+
+
+
+	template<typename numbers>
+	void unload_weights(string path, vector<vector<numbers>>weigths)
+	{
+		ofstream file; file.open(path);
+		for (int i = 0; i < weigths.size(); i++)
+		{
+			file << weigths[i] << ",";
+		}
+		file.close();
+	}
+
+	template<typename numbers>
+	void load_weights(string path, vector<vector<numbers>>& weigths)
+	{
+		ifstream file(path);
+		SMOKOT smokot;
+		string take;
+		while (!file.eof())
+		{
+			file >> take;
+		}
+
+		string swap;
+
+		for (int i = 0; i < take.size(); i++)
+		{
+			float num;
+			if (take[i] == ',') {
+
+
+				num = atof(swap.c_str());
+
+				weigths.push_back(num);
+				swap = "";
+				continue;
+			}
+			swap += take[i];
+
+		}
+
+		file.close();
+	}
+
+
+
+	template<typename numbers>
+	void unload_weights(string path, vector<numbers>weigths)
+	{
+		ofstream file; file.open(path);
+		for (int i = 0; i < weigths.size(); i++)
+		{
+			file << weigths[i] << ",";
+		}
+		file.close();
+	}
+
+	template<typename numbers>
+	void load_weights(string path, vector<numbers>& weigths)
+	{
+		ifstream file(path);
+		SMOKOT smokot;
+		string take;
+		while (!file.eof())
+		{
+			file >> take;
+		}
+
+		string swap;
+
+		for (int i = 0; i < take.size(); i++)
+		{
+			float num;
+			if (take[i] == ',') {
+
+
+				num = atof(swap.c_str());
+
+				weigths.push_back(num);
+				swap = "";
+				continue;
+			}
+			swap += take[i];
+
+		}
+
+		file.close();
+	}
+
+
+	template<typename numbers>
+	vector<numbers> weight_sum(vector<numbers>vec1, vector<vector<numbers>>vec2, string reludiv)
+	{
+		vector<numbers>output;
+		if (reludiv == "relu") {
+			
+			if (vec1.size() != vec2.size())
+				return output;
+
+			for (int m = 0; m < vec2[0].size(); m++)
+			{
+				float res = 0;
+				for (int i = 0; i < vec1.size(); i++)
+				{
+					res += vec1[i] * vec2[i][m];
+
+				}
+				output.push_back(relu(res));
+			}
+		}
+		else if (reludiv == "relu2deriv") {
+
+			
+			if (vec1.size() != vec2.size())
+				return output;
+
+			for (int m = 0; m < vec2[0].size(); m++)
+			{
+				float res = 0;
+				for (int i = 0; i < vec1.size(); i++)
+				{
+					res += vec1[i] * vec2[i][m];
+
+				}
+				output.push_back(relu2deriv(res));
+			}
+		}
+		
+		
+
+		return output;
+	}
+
+
+	template<typename numbers>
+	numbers weight_sum(vector<numbers>vec1, vector<numbers>vec2)
+	{
+		numbers res = 0;
+		
+		if (vec1.size() != vec2.size())
+			return -1;
+
+		for (int i = 0; i < vec1.size(); i++)
+		{
+			res += vec1[i] * relu(vec2[i]);
+		}
+
+		return res;
+	}
+
+
+
+	template<typename numbers>
+	vector<numbers>ele_mul(numbers num, vector<numbers>vec2)
+	{
+		vector <numbers>result;
+		result.resize(vec2.size());
+		
+		if (result.size() != vec2.size())
+			return (result);
+		
+		for (int i = 0; i < vec2.size(); i++)
+		{
+			result[i]= num * vec2[i];
+		}
+
+		return result;
+	}
+
+
+	template<typename numbers>
+	vector<numbers>vec_mat_mul(vector<numbers> num, vector<vector<numbers>>vec2)
+	{
+		vector<numbers>result;
+		result.resize(num.size());
+
+
+		if (num.size() != vec2.size())
+			return (result);
+
+		for (int i = 0; i < num.size(); i++)
+		{	
+			result[i] = weight_sum(num, vec2[i]);
+		}
+
+		return result;
+	}
+
+	template<typename num>
+	void training(vector<vector<num>>input, vector<num>&weights, vector<num>goals,  float alpha, int epoch)
+	{
+		
+		for (int i = 0; i < epoch; i++) {
+			
+			for (int j = 0; j < goals.size(); j++) {
+				
+				float prediction = weight_sum(input[j], weights);
+				float error = pow((prediction - goals[j]), 2);
+				float delta = (prediction - goals[j]);
+				vector<num> w_delta = ele_mul(delta, input[j]);
+				for (int m = 0; m < w_delta.size(); m++) {
+					weights[m] -= w_delta[m] * alpha;
+				}
+				
+			}
+		}
+	}
+
+	
+	void training(float input, float &weight, float goal, float alpha, int epoch)
+	{
+		for (int i = 0; i < epoch; i++) {
+			float prediction = input * weight;
+			float error = pow((prediction - goal), 2);
+			float delta = (prediction - goal) * input;
+			weight -= delta * alpha;	
+		}
+	}
+
+	float predict(float input, float weight)
+	{
+		return input * weight;
+	}
+
+	template<typename numbers>
+	float predict(vector<numbers> input, vector<numbers> weight)
+	{
+		return weight_sum(input, weight);
+	}
+
+	template<typename numbers>
+	void load_inputs(vector<vector<numbers>>&vec, vector<numbers>&goals, string path)
+	{
+		ifstream file(path);
+		SMOKOT smokot;
+		string line;
+		int counter = 0;
+		vec.resize(10001);
+		bool flag = false;
+		while (!file.eof())
+		{
+			file >> line;
+			for (int i = 0; i < line.size(); i++)
+			{
+				if (line[i] == '=')
+				{
+					string save;
+					for (int j = i+1; j < line.size(); j++)
+					{
+					
+						save += line[j];
+						flag = true;
+					}
+
+					goals.push_back(smokot.string_to_int(save));
+					continue;
+				}
+
+				if (flag) {
+					flag = false;
+					break;
+				}
+				if (line[i] == '|')
+				{
+					counter++;
+					continue;
+				}
+				vec[counter].push_back((float)smokot.char_number(line[i])/100);
+				
+			}
+			
+			
+		}
+		
+	}
+
+
+	template<typename numbers>
+	void generate_weights(vector<vector<numbers>>& vec,int vec_size ,int quantity)
+	{
+		vec.resize(vec_size);
+		
+		srand(time(0));
+		for (int m = 0; m < vec_size; m++)
+		{
+			for (int i = 0; i < quantity; i++)
+			{
+				int number = rand() % 3;
+				switch (number) {
+				case 0:
+					vec[m].push_back(0.001);
+					break;
+				case 1:
+					vec[m].push_back(0.002);
+					break;
+				case 2:
+					vec[m].push_back(0.003);
+					break;
+				case 3:
+					vec[m].push_back(0.004);
+					break;
+				}
+			}
+		}
+
+		
+	}
+
+
+
+	template<typename numbers>
+	void generate_weights(vector<numbers>& vec, int quantity)
+	{
+		srand(time(0));
+		for (int i = 0; i < quantity; i++)
+		{
+			int number = rand() % 3;
+			switch (number) {
+				case 0:
+					vec.push_back(0.001);
+				break;
+
+				case 1:
+					vec.push_back(0.002);
+					break;
+				case 2:
+					vec.push_back(0.003);
+					break;
+				case 3:
+					vec.push_back(0.004);
+					break;
+			}
+		}
+	}
+};
