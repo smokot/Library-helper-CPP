@@ -10,9 +10,13 @@
 #include "windows.h"
 #include "sstream"
 #include "vector"
+#include <algorithm>
 #include "tuple"
 #include "string"
 #include "ctime"
+#include <utility>
+#include <thread>
+#include <functional>
 #include <gdiplus.h>
 #pragma comment(lib, "GdiPlus.lib")
 using namespace std;
@@ -38,8 +42,434 @@ private:
 	int x, y;
 }GetPixelColor_One;
 
+class BUTTON {
+public:
+	COLORREF background_color = RGB(255, 0, 255);
+	COLORREF text_color = RGB(255, 255, 0);
+	int text_x = 0, text_y = 0;
+	int height = 100;
+	int width = 100;
+	int x = 10;
+	int y = 10;
+	DWORD flags_style = WS_CHILD | WS_VISIBLE | WS_BORDER | BS_OWNERDRAW;
+	const char* button_text = "CLICK";
+	int text_length = 5;
+	HMENU onclick_number = NULL;
+	function<void()>onclick_func;
+	HWND button_hwnd;
+	void onclick_do_action() {
+		onclick_func();
+	}
+	HWND return_hwnd() {
+		return button_hwnd;
+	}
+private:
+
+};
+
+
+vector<BUTTON>all_buttons;
+vector<HWND>all_hwnds;
+int counter = 0;
+LRESULT WINAPI WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lparam)
+{
+
+
+
+	switch (uMsg)
+	{
+	case WM_CTLCOLORSTATIC:
+	{
+		SetTextColor(GetDC(all_hwnds[0]), all_buttons[0].text_color);
+		break;
+
+	}
+	case WM_CTLCOLORBTN:
+	{
+
+		/*for (int i = counter; i < all_buttons.size(); i++)
+		{
+			if (counter >= all_buttons.size())counter = 0;
+			HDC hdcButton = GetDC(all_hwnds[i]);
+			HBRUSH hb = CreateSolidBrush((all_buttons[i].background_color));
+			SetBkColor(hdcButton, all_buttons[i].background_color);
+			SetTextColor(hdcButton, RGB(255, 255, 255));
+			TextOut(hdcButton, 5, 5, "HALO BICH", 10);
+			counter++;
+
+			return (long)hb;
+		}*/
+		/*for (int i = 0; i < all_hwnds.size(); i++)
+		{
+			RECT rect; GetClientRect(all_hwnds[i], &rect);
+			HBRUSH brush = CreateSolidBrush(all_buttons[i].background_color);
+
+			FillRect(GetDC(all_hwnds[i]), &rect, brush);
+			SetTextColor(GetDC(all_hwnds[i]), all_buttons[i].text_color);
+			TextOut(GetDC(all_hwnds[i]), all_buttons[i].text_x, all_buttons[i].text_y, all_buttons[i].button_text, all_buttons[i].text_length);
+
+
+
+		}*/
+
+
+		TextOut(GetDC(all_hwnds[0]), all_buttons[0].text_x, all_buttons[0].text_y, all_buttons[0].button_text, all_buttons[0].text_length);
+
+
+		break;
+	}
+
+	case WM_PAINT:
+	{
+		PAINTSTRUCT ps;
+
+		BeginPaint(hwnd, &ps);
+
+
+		EndPaint(hwnd, &ps);
+		break;
+	}
+
+
+
+
+
+	case WM_CREATE:
+	{
+
+		all_hwnds.clear();
+		for (int i = 0; i < all_buttons.size(); i++)
+		{
+			HWND take = CreateWindow("BUTTON", all_buttons[i].button_text, all_buttons[i].flags_style
+				, all_buttons[i].x, all_buttons[i].y, all_buttons[i].width, all_buttons[i].height, hwnd, HMENU(i), NULL, NULL);
+			all_buttons[i].button_hwnd = take;
+			all_hwnds.push_back(take);
+
+		}
+
+	}
+	return 0;
+
+	case WM_COMMAND:
+	{
+		for (int i = 0; i < all_buttons.size(); i++)
+		{
+			if (wParam == (int)all_buttons[i].onclick_number)
+			{
+				all_buttons[i].onclick_do_action();
+			}
+		}
+
+		break;
+	}
+
+	case WM_SIZE:
+	{
+
+		break;
+	}
+
+	case WM_DESTROY:
+	{
+		PostQuitMessage(EXIT_SUCCESS);
+	}
+	return 0;
+	}
+	return DefWindowProc(hwnd, uMsg, wParam, lparam);
+}
+
+
+
+
+
+
+class FORM : BUTTON {
+public:
+
+	COLORREF background_color = RGB(255, 255, 255);
+	const char* window_name;
+	int height = 500;
+	int width = 500;
+	int x = 400;
+	int y = 400;
+	HWND main_hwnd = NULL;
+	DWORD flags_style = WS_OVERLAPPEDWINDOW;
+
+	
+	void init()
+	{
+		CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)start, this, 0, NULL);
+	}
+
+	void AddElement(BUTTON btn)
+	{
+		all_buttons.push_back(btn);
+	}
+
+
+private:
+	HINSTANCE hInstance = NULL;
+	PWSTR szCmdLine = NULL;
+	int nCmdShow = 1;
+
+	static void start(FORM* pointer)
+	{
+		pointer->wWinMain(pointer->hInstance, NULL, pointer->szCmdLine, pointer->nCmdShow);
+	}
+	
+
+	int CALLBACK wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR szCmdLine, int nCmdShow)
+	{
+		WNDCLASSEX wc{ sizeof(WNDCLASSEX) };
+
+		MSG msg{};
+		HWND hwnd{};
+		HBRUSH background = CreateSolidBrush(background_color);
+		wc.cbClsExtra = 0;
+		wc.cbWndExtra = 0;
+		wc.hbrBackground = reinterpret_cast<HBRUSH>(background);
+		wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
+		wc.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
+		wc.hIconSm = LoadIcon(nullptr, IDI_APPLICATION);
+		wc.hInstance = hInstance;
+		wc.lpfnWndProc = WndProc;
+		wc.lpszClassName = "MyappClass";
+		wc.lpszMenuName = nullptr;
+		wc.style = CS_VREDRAW | CS_HREDRAW;
+
+		if (!RegisterClassEx(&wc))
+			return EXIT_FAILURE;
+
+		hwnd = CreateWindow(wc.lpszClassName, window_name, flags_style, x, y, width, height, nullptr, nullptr, wc.hInstance, nullptr);
+
+
+		ShowWindow(hwnd, nCmdShow);
+		UpdateWindow(hwnd);
+
+		main_hwnd = hwnd;
+
+
+		while (GetMessage(&msg, nullptr, 0, 0))
+		{
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+		return static_cast<int>(msg.wParam);
+	}
+
+
+
+
+
+};
+
+
+class Graphic{
+public:
+	
+	HDC dc;
+	
+	int formWidth, formHeight;
+	void setDC(HDC _dc) {
+		dc = _dc;
+	}
+
+	
+	template<typename nums>
+	void updateGraphic(vector<nums> data, bool left_score, bool text_value, COLORREF dot_color, COLORREF line_color, int size)
+	{
+		int max_num = max_value(data);
+		vector<nums>data_copy_forLines;
+		for (int i = 0; i < data.size(); i++)
+		{
+			data_copy_forLines.push_back(data[i]);
+		}
+
+
+		vector<nums>data_pos_step;
+		vector<nums>data_pos_value;
+		vector<nums>data_sorted;
+
+		int size_dot = size * 2;
+
+		
+
+		while (1) {
+			
+			draw_line(5, 0, 5, formHeight - 50, line_color, size, dc); // Y osi
+			draw_line(5, formHeight - 50, formWidth, formHeight - 50, line_color, size, dc); // X osi
+
+			std::sort(data.begin(), data.end());
+			data.resize(unique(data.begin(), data.end()) - data.begin());
+			data_sorted = reverse_vec(data);
+
+			
+			//--------Draw data nums--------//
+			for (int i = 0, step = 0; i < data_sorted.size(); i++, step += (formHeight / data.size()) - 3)
+			{
+				float value = data_sorted[i];
+				string word = float_to_string(value);
+				auto out = string_to_char(word);
+				data_pos_step.push_back(step);
+				data_pos_value.push_back(value);
+				if (left_score) {
+					draw_text(dc, 5, step, out);
+					draw_text(dc, 5, step, out);
+				}
+				
+			}
+			
+			//--------Save data poses--------//
+			vector<nums>out_poses;
+			for (int i = 0; i < data_copy_forLines.size(); i++)
+			{
+				for (int j = 0; j < data_pos_value.size(); j++)
+				{
+					if (data_copy_forLines[i] == data_pos_value[j]) {
+						out_poses.push_back(data_pos_step[j]);
+						break;
+					}
+				}
+			}
+
+
+
+			int lastX = formWidth;
+			int lastY = formHeight;
+			for (int i = 0, step = (formWidth / data_copy_forLines.size()/2); i < out_poses.size(); i++, step += (formWidth / data_copy_forLines.size())-1)
+			{
+				string value = float_to_string(data_copy_forLines[i]);
+				auto out_value = string_to_char(value);
+				if (i == 0) {
+					//draw_line(lastX, lastY, lastX, lastY, RGB(25, 25, 25), 2, dc);
+					if (text_value) {
+						draw_text(dc, step, out_poses[i], out_value);
+						draw_text(dc, step, out_poses[i], out_value);
+					}
+					
+					lastX = step;
+					lastY = out_poses[i];
+					continue;
+				}
+				draw_line(lastX, lastY, step, out_poses[i], line_color, size, dc);
+				draw_dot(dc, lastX, lastY, dot_color, size_dot);
+				
+				if (text_value) {
+					draw_text(dc, step, out_poses[i], out_value);
+					draw_text(dc, step, out_poses[i], out_value);
+				}
+				lastX = step;
+				lastY = out_poses[i];
+			}
+			
+			
+
+			Sleep(300);
+		}
+
+	}
+	
+
+
+private:
+	
+	template<typename nums>
+	vector<nums>reverse_vec(vector<nums>arr)
+	{
+		vector<nums>result;
+		for (int i = arr.size()-1; i >= 0; i--)
+		{
+			result.push_back(arr[i]);
+		}
+		return result;
+	}
+
+	template<typename nums>
+	nums max_value(vector<nums>arr)
+	{
+		nums max = 0;
+		for (int i = 0; i < arr.size(); i++)
+		{
+			if (max < arr[i]) {
+				max = arr[i];
+			}
+		}
+		return max;
+	}
+	void draw_dot(HDC dc, int x, int y, COLORREF ref, int pen_size)
+	{
+		HPEN pen = CreatePen(PS_SOLID, pen_size, ref);
+		SelectObject(dc, pen);
+		POINT point;
+		MoveToEx(dc, x, y, &point);
+		LineTo(dc, x, y);
+	}
+
+	void draw_line(int x, int y, int x2, int y2, COLORREF color, int pen_size, HDC dc = NULL)
+	{
+		HPEN pen = CreatePen(PS_SOLID, pen_size, color);
+		SelectObject(dc, pen);
+		POINT point;
+		MoveToEx(dc, x, y, &point);
+		LineTo(dc, x2, y2);
+	}
+	void draw_text(HDC dc, int x, int y, char* str)
+	{
+		TextOut(dc, x, y, str, strlen(str));
+	}
+	string float_to_string(float x)
+	{
+		string result = "";
+		stringstream ss;
+		ss << x;
+		result = ss.str();
+		return result;
+	}
+
+	string int_to_string(int x)
+	{
+		string result = "";
+		stringstream ss;
+		ss << x;
+		result = ss.str();
+		return result;
+	}
+	char* string_to_char(std::string x) // ПЕРЕВОД STRING В CHAR
+	{
+		int size = x.size(); size++;
+		char* ch = new char[size];
+		ZeroMemory(ch, size);
+		for (int i = 0; i < size; i++) {
+			ch[i] = x[i];
+		}
+		ch[size] = '\0';
+		char* out = ch;
+		//delete[] ch;
+		return ch;
+	}
+};
+
+
 class SMOKOT {
 public:
+
+
+	template<typename nums>
+	void createGraphic(FORM graphic, vector<nums>data, bool left_score, bool text_value, COLORREF dot_color, COLORREF line_color, int size)
+	{
+		HWND hwnd = FindWindow(NULL, graphic.window_name);
+		while(!hwnd) {
+			hwnd = FindWindow(NULL, graphic.window_name);
+			Sleep(1000);
+		}
+		SMOKOT smokot;
+		HDC dc = GetDC(hwnd);
+		Graphic graph;
+		graph.formWidth = graphic.width;
+		graph.formHeight = graphic.height;
+		graph.setDC(dc);
+		graph.updateGraphic(data, left_score, text_value,dot_color, line_color , size);
+	}
 
 	vector<int> min_nums(vector<int>nums)
 	{
@@ -51,7 +481,6 @@ public:
 				res[0] = nums[i];
 				save = i;
 			}
-
 		}
 		res.push_back(save);
 		return res;
@@ -596,7 +1025,15 @@ public:
 		string result = "";
 		stringstream ss;
 		ss << x;
+		result = ss.str();
+		return result;
+	}
 
+	string float_to_string(float x)
+	{
+		string result = "";
+		stringstream ss;
+		ss << x;
 		result = ss.str();
 		return result;
 	}
@@ -672,10 +1109,8 @@ public:
 		LineTo(dc, x, y);
 
 	}
-	void draw_line(int x, int y, int x2, int y2, COLORREF color, int pen_size)
+	void draw_line(int x, int y, int x2, int y2, COLORREF color, int pen_size, HDC dc = NULL )
 	{
-		HDC dc = GetDC(0);
-
 		HPEN pen = CreatePen(PS_SOLID, pen_size, color);
 
 		SelectObject(dc, pen);
@@ -721,133 +1156,6 @@ HWND hEdit2 = NULL;
 
 
 
-class BUTTON {
-public:
-	COLORREF background_color = RGB(255, 0, 255);
-	COLORREF text_color = RGB(255,255,0);
-	int text_x=0, text_y=0;
-	int height = 100;
-	int width = 100;
-	int x = 10;
-	int y = 10;
-	DWORD flags_style = WS_CHILD | WS_VISIBLE | WS_BORDER | BS_OWNERDRAW;
-	const char* button_text = "CLICK";
-	int text_length=5;
-	HMENU onclick_number = NULL;
-	function<void()>onclick_func;
-	HWND button_hwnd;
-	void onclick_do_action(){
-		onclick_func();
-	}
-	HWND return_hwnd(){
-		return button_hwnd;
-	}
-private:
-	
-};
-
-
-vector<BUTTON>all_buttons;
-vector<HWND>all_hwnds;
-int counter = 0;
-LRESULT WINAPI WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lparam)
-{
-
-
-
-	switch (uMsg)
-	{
-		case WM_CTLCOLORSTATIC :
-		{
-			SetTextColor(GetDC(all_hwnds[0]), all_buttons[0].text_color);
-			
-		}
-		case WM_CTLCOLORBTN:
-		{
-		
-			/*for (int i = counter; i < all_buttons.size(); i++)
-			{
-				if (counter >= all_buttons.size())counter = 0;
-				HDC hdcButton = GetDC(all_hwnds[i]);
-				HBRUSH hb = CreateSolidBrush((all_buttons[i].background_color));
-				SetBkColor(hdcButton, all_buttons[i].background_color);
-				SetTextColor(hdcButton, RGB(255, 255, 255));
-				TextOut(hdcButton, 5, 5, "HALO BICH", 10);
-				counter++;
-			
-				return (long)hb;
-			}*/
-			/*for (int i = 0; i < all_hwnds.size(); i++)
-			{
-				RECT rect; GetClientRect(all_hwnds[i], &rect);
-				HBRUSH brush = CreateSolidBrush(all_buttons[i].background_color);
-
-				FillRect(GetDC(all_hwnds[i]), &rect, brush);
-				SetTextColor(GetDC(all_hwnds[i]), all_buttons[i].text_color);
-				TextOut(GetDC(all_hwnds[i]), all_buttons[i].text_x, all_buttons[i].text_y, all_buttons[i].button_text, all_buttons[i].text_length);
-				
-				
-				
-			}*/
-
-			
-			TextOut(GetDC(all_hwnds[0]), all_buttons[0].text_x, all_buttons[0].text_y, all_buttons[0].button_text, all_buttons[0].text_length);
-
-
-			break;
-		}
-
-		case WM_PAINT:
-		{
-			PAINTSTRUCT ps;
-			
-			BeginPaint(hwnd, &ps);
-			
-			
-			EndPaint(hwnd, &ps);
-		}
-
-		
-
-
-
-		case WM_CREATE:
-		{
-
-			all_hwnds.clear();
-			for (int i = 0; i < all_buttons.size(); i++)
-			{
-				HWND take = CreateWindow("BUTTON", all_buttons[i].button_text, all_buttons[i].flags_style
-					, all_buttons[i].x, all_buttons[i].y, all_buttons[i].width, all_buttons[i].height, hwnd, HMENU(i), NULL, NULL);
-				all_buttons[i].button_hwnd = take;
-				all_hwnds.push_back(take);
-
-			}
-
-		}
-		return 0;
-
-		case WM_COMMAND:
-		{
-			for (int i = 0; i < all_buttons.size(); i++)
-			{
-				if (wParam == (int)all_buttons[i].onclick_number)
-				{
-					all_buttons[i].onclick_do_action();
-				}
-			}
-
-			break;
-		}
-
-		case WM_DESTROY:
-		{
-			PostQuitMessage(EXIT_SUCCESS);
-		}
-		return 0;
-	}
-	return DefWindowProc(hwnd, uMsg, wParam, lparam);
-}
 
 
 
@@ -862,83 +1170,8 @@ LRESULT WINAPI WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lparam)
 
 
 
-class FORM : BUTTON{
-public:
-	
-	
-
-	
-	COLORREF background_color = RGB(255,255,255);
-	const char* window_name;
-	int height = 500;
-	int width = 500;
-	int x = 400;
-	int y = 400;
-	HWND main_hwnd = NULL;
-	DWORD flags_style = WS_OVERLAPPEDWINDOW;
-
-	void start()
-	{
-		wWinMain(hInstance, NULL, szCmdLine, nCmdShow);
-	}
-
-	void AddElement(BUTTON btn)
-	{
-		all_buttons.push_back(btn);
-	}
-
-	
-	
-
-private:
-	HINSTANCE hInstance = NULL;
-	PWSTR szCmdLine = NULL;
-	int nCmdShow = 1;
-	
-	int CALLBACK wWinMain(HINSTANCE hInstance, HINSTANCE, PWSTR szCmdLine, int nCmdShow)
-	{
-		WNDCLASSEX wc{ sizeof(WNDCLASSEX) };
-
-		MSG msg{};
-		HWND hwnd{};
-		HBRUSH background = CreateSolidBrush(background_color);
-		wc.cbClsExtra = 0;
-		wc.cbWndExtra = 0;
-		wc.hbrBackground = reinterpret_cast<HBRUSH>(background);
-		wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
-		wc.hIcon = LoadIcon(nullptr, IDI_APPLICATION);
-		wc.hIconSm = LoadIcon(nullptr, IDI_APPLICATION);
-		wc.hInstance = hInstance;
-		wc.lpfnWndProc = WndProc;
-		wc.lpszClassName = "MyappClass";
-		wc.lpszMenuName = nullptr;
-		wc.style = CS_VREDRAW | CS_HREDRAW;
-
-		if (!RegisterClassEx(&wc))
-			return EXIT_FAILURE;
-
-		hwnd = CreateWindow(wc.lpszClassName, window_name, flags_style, x, y, width, height, nullptr, nullptr, wc.hInstance, nullptr);
 
 
-		ShowWindow(hwnd, nCmdShow);
-		UpdateWindow(hwnd);
-
-		main_hwnd = hwnd;
-
-
-		while (GetMessage(&msg, nullptr, 0, 0))
-		{
-			TranslateMessage(&msg);
-			DispatchMessage(&msg);
-		}
-		return static_cast<int>(msg.wParam);
-	}
-
-
-
-	
-
-};
 
 float main_pressed = clock(); // Время нажатия
 float time_pressed = clock(); // Время нажатия
@@ -1356,14 +1589,18 @@ public:
 	}
 
 	
-	void training(float input, float &weight, float goal, float alpha, int epoch)
+	vector<float> training(float input, float &weight, float goal, float alpha, int epoch)
 	{
+		vector<float>errors;
 		for (int i = 0; i < epoch; i++) {
 			float prediction = input * weight;
 			float error = pow((prediction - goal), 2);
+			errors.push_back(error);
+			cout << error << endl;
 			float delta = (prediction - goal) * input;
 			weight -= delta * alpha;	
 		}
+		return errors;
 	}
 
 	float predict(float input, float weight)
@@ -1396,15 +1633,12 @@ public:
 					string save;
 					for (int j = i+1; j < line.size(); j++)
 					{
-					
 						save += line[j];
 						flag = true;
 					}
-
 					goals.push_back(smokot.string_to_int(save));
 					continue;
 				}
-
 				if (flag) {
 					flag = false;
 					break;
