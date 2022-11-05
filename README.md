@@ -13,6 +13,30 @@ Library for Convert of types and other functions
 
 and other..
 
+
+` createGraphic ` - Creating 2D Graphic with your data
+
+``` 
+SMOKOT smokot;
+FORM graphic;
+graphic.window_name = "graphic";
+graphic.init();      
+COLORREF dot_color = RGB(0, 0, 255);
+COLORREF line_color = RGB(0, 0, 0);
+int size = 5;
+vector<float>inps = { 0.0722, 0.11, 0.05, 0.07, 0.06,0.16,0.10,0.07,0.11,0.17,0.23,0.20,0.26};
+smokot.createGraphic(graphic, inps, true, true, dot_color, line_color, size); // where flag left_score = true, text_value = true
+![image](https://user-images.githubusercontent.com/58879890/200120775-f7e64bd0-9481-4ba3-8c71-bdd2d80ab38f.png)
+
+
+smokot.createGraphic(graphic, inps, true, true, dot_color, line_color, size); // where flag left_score = false, text_value = false
+![image](https://user-images.githubusercontent.com/58879890/200120830-7122b749-e2ec-440d-8104-712da2ae0d00.png)
+
+
+```
+
+
+
 ` GetPixelColor_One ` - Get color of pixel (V1)
 
 ``` C++
