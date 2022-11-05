@@ -30,7 +30,7 @@ smokot.createGraphic(graphic, inps, true, true, dot_color, line_color, size); //
 ![image](https://user-images.githubusercontent.com/58879890/200120775-f7e64bd0-9481-4ba3-8c71-bdd2d80ab38f.png)
 
 ```
-smokot.createGraphic(graphic, inps, true, true, dot_color, line_color, size); // where flag left_score = false, text_value = false
+smokot.createGraphic(graphic, inps, false, false, dot_color, line_color, size); // where flag left_score = false, text_value = false
 ```
 ![image](https://user-images.githubusercontent.com/58879890/200120830-7122b749-e2ec-440d-8104-712da2ae0d00.png)
 
