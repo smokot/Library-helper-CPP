@@ -14,6 +14,46 @@ Library for Convert of types and other functions
 and other..
 
 
+
+
+` findBlockPosition ` - Find block colors in HBMP
+
+```
+int main()
+{
+    std::string source = "----------------1----------111111-111111111111111111111111111\
+    \n-1--------------------------11111111111111-111111111111111111\
+    \n-1111111--------------------111111111111111111111111111111111\
+    \n---------------------------------1111111111111111111111111111\
+    \n--------------------------------------------22211111111111111\
+    \n--------------------------------------------22211111111111111\
+    \n--------------------------------------------22211111111111111";
+
+    std::vector<std::string> search = { "222", "222", "222" };
+
+    int lineLength = source.find('\n') + 1; // длина строки в символах (с учетом переноса)
+
+    int blockPosition = findBlockPosition(source, search, lineLength);
+
+    if (blockPosition == -1)
+    {
+        std::cout << "Блок не найден" << std::endl;
+    }
+    else
+    {
+        int row = blockPosition / lineLength + 1; // номер строки (считаем с 1)
+        int column = blockPosition % lineLength + 1; // номер столбца (считаем с 1)
+        std::cout << "Блок найден в строке " << row << ", столбце " << column << std::endl;
+    }
+
+    return 0;
+}
+
+
+```
+
+
+
 ` createGraphic ` - Creating 2D Graphic with your data
 
 ``` 
