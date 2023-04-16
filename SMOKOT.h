@@ -434,7 +434,7 @@ private:
 		result = ss.str();
 		return result;
 	}
-	char* string_to_char(std::string x) // ПЕРЕВОД STRING В CHAR
+	char* string_to_char(std::string x) // ГЏГ…ГђГ…Г‚ГЋГ„ STRING Г‚ CHAR
 	{
 		int size = x.size(); size++;
 		char* ch = new char[size];
@@ -452,6 +452,56 @@ private:
 
 class SMOKOT {
 public:
+	
+	int findBlockPosition(const std::string& source, const std::vector<std::string>& search, int lineLength)
+	{
+	    int blockWidth = search[0].size(); // С€РёСЂРёРЅР° Р±Р»РѕРєР° (РєРѕР»-РІРѕ СЃС‚РѕР»Р±С†РѕРІ)
+	    int blockHeight = search.size(); // РІС‹СЃРѕС‚Р° Р±Р»РѕРєР° (РєРѕР»-РІРѕ СЃС‚СЂРѕРє)
+
+	    for (int i = 0; i < source.size(); i++)
+	    {
+		if (source[i] == search[0][0]) // РµСЃР»Рё РЅР°С€Р»Рё РїРµСЂРІС‹Р№ СЃРёРјРІРѕР» Р±Р»РѕРєР°
+		{
+		    // РїСЂРѕРІРµСЂСЏРµРј, РµСЃС‚СЊ Р»Рё РѕСЃС‚Р°Р»СЊРЅС‹Рµ СЃРёРјРІРѕР»С‹ Р±Р»РѕРєР° РІ СЃС‚СЂРѕРєРµ
+		    bool found = true;
+		    for (int j = 1; j < blockWidth; j++)
+		    {
+			if (source[i + j] != search[0][j])
+			{
+			    found = false;
+			    break;
+			}
+		    }
+
+		    if (found) // РµСЃР»Рё РЅР°С€Р»Рё РїРµСЂРІСѓСЋ СЃС‚СЂРѕРєСѓ Р±Р»РѕРєР°
+		    {
+			// РїСЂРѕРІРµСЂСЏРµРј, РµСЃС‚СЊ Р»Рё РѕСЃС‚Р°Р»СЊРЅС‹Рµ СЃС‚СЂРѕРєРё Р±Р»РѕРєР° РІ СЃР»РµРґСѓСЋС‰РёС… СЃС‚СЂРѕРєР°С…
+			bool blockFound = true;
+			for (int k = 1; k < blockHeight; k++)
+			{
+			    int nextLineStart = i + (k * lineLength); // РЅР°С‡Р°Р»Рѕ СЃР»РµРґСѓСЋС‰РµР№ СЃС‚СЂРѕРєРё
+			    for (int j = 0; j < blockWidth; j++)
+			    {
+				if (source[nextLineStart + j] != search[k][j])
+				{
+				    blockFound = false;
+				    break;
+				}
+			    }
+			    if (!blockFound)
+			    {
+				break;
+			    }
+			}
+			if (blockFound)
+			{
+			    return i;
+			}
+		    }
+		}
+	    }
+	    return -1; // Р±Р»РѕРє РЅРµ РЅР°Р№РґРµРЅ
+	}
 
 
 	template<typename nums>
@@ -488,26 +538,26 @@ public:
 
 	float Monochrome(COLORREF cr)
 	{
-		// два любых опорных цвета
+		// Г¤ГўГ  Г«ГѕГЎГ»Гµ Г®ГЇГ®Г°Г­Г»Гµ Г¶ГўГҐГІГ 
 		const COLORREF black = 0;
 		const COLORREF white = 0x00ffffff;
 		const COLORREF gray = RGB(20, 20, 20);
 		const COLORREF gray2 = RGB(70, 70, 70);
 		const COLORREF gray3 = RGB(120, 120, 120);
 
-		// квадрат расстояния до первой опорной точки
+		// ГЄГўГ Г¤Г°Г ГІ Г°Г Г±Г±ГІГ®ГїГ­ГЁГї Г¤Г® ГЇГҐГ°ГўГ®Г© Г®ГЇГ®Г°Г­Г®Г© ГІГ®Г·ГЄГЁ
 		int blackR = int(GetRValue(cr)) - int(GetRValue(black));
 		int blackG = int(GetGValue(cr)) - int(GetGValue(black));
 		int blackB = int(GetBValue(cr)) - int(GetBValue(black));
 		unsigned blackDist = blackR * blackR + blackG * blackG + blackB * blackB;
 
-		// квадрат расстояния до второй опорной точки
+		// ГЄГўГ Г¤Г°Г ГІ Г°Г Г±Г±ГІГ®ГїГ­ГЁГї Г¤Г® ГўГІГ®Г°Г®Г© Г®ГЇГ®Г°Г­Г®Г© ГІГ®Г·ГЄГЁ
 		int whiteR = int(GetRValue(cr)) - int(GetRValue(white));
 		int whiteG = int(GetGValue(cr)) - int(GetGValue(white));
 		int whiteB = int(GetBValue(cr)) - int(GetBValue(white));
 		unsigned whiteDist = whiteR * whiteR + whiteG * whiteG + whiteB * whiteB;
 
-		// квадрат расстояния до третьей опорной точки
+		// ГЄГўГ Г¤Г°Г ГІ Г°Г Г±Г±ГІГ®ГїГ­ГЁГї Г¤Г® ГІГ°ГҐГІГјГҐГ© Г®ГЇГ®Г°Г­Г®Г© ГІГ®Г·ГЄГЁ
 		int grayR = int(GetRValue(cr)) - int(GetRValue(gray));
 		int grayG = int(GetGValue(cr)) - int(GetGValue(gray));
 		int grayB = int(GetBValue(cr)) - int(GetBValue(gray));
@@ -550,7 +600,7 @@ public:
 		vec.push_back(grayDist2);
 		vec.push_back(grayDist3);
 		
-		// проверяем какое расстояние меньше
+		// ГЇГ°Г®ГўГҐГ°ГїГҐГ¬ ГЄГ ГЄГ®ГҐ Г°Г Г±Г±ГІГ®ГїГ­ГЁГҐ Г¬ГҐГ­ГјГёГҐ
 		vector<int>result = min_nums(vec);
 		if (result[1] == 0) {
 			return 1;
@@ -573,17 +623,17 @@ public:
 	}
 
 	//-------------------------------------------------------------------------------------------------
-	// преобразовании горизонтальной пиксельной линии в текстовую строку
+	// ГЇГ°ГҐГ®ГЎГ°Г Г§Г®ГўГ Г­ГЁГЁ ГЈГ®Г°ГЁГ§Г®Г­ГІГ Г«ГјГ­Г®Г© ГЇГЁГЄГ±ГҐГ«ГјГ­Г®Г© Г«ГЁГ­ГЁГЁ Гў ГІГҐГЄГ±ГІГ®ГўГіГѕ Г±ГІГ°Г®ГЄГі
 	//-------------------------------------------------------------------------------------------------
 	void TranslateLine(COLORREF* line, int cx, std::string& str)
 	{
-		// очищаем строку
+		// Г®Г·ГЁГ№Г ГҐГ¬ Г±ГІГ°Г®ГЄГі
 		str.clear();
 
-		// пробегаемся по всем пикселях одной горизонтальной линии картинки
+		// ГЇГ°Г®ГЎГҐГЈГ ГҐГ¬Г±Гї ГЇГ® ГўГ±ГҐГ¬ ГЇГЁГЄГ±ГҐГ«ГїГµ Г®Г¤Г­Г®Г© ГЈГ®Г°ГЁГ§Г®Г­ГІГ Г«ГјГ­Г®Г© Г«ГЁГ­ГЁГЁ ГЄГ Г°ГІГЁГ­ГЄГЁ
 		for (int i = 0; i < cx; i++)
 		{
-			// добавляем в строку '0' или '1' в зависимости от цвета пикселя (заменить ' ' на '0')
+			// Г¤Г®ГЎГ ГўГ«ГїГҐГ¬ Гў Г±ГІГ°Г®ГЄГі '0' ГЁГ«ГЁ '1' Гў Г§Г ГўГЁГ±ГЁГ¬Г®Г±ГІГЁ Г®ГІ Г¶ГўГҐГІГ  ГЇГЁГЄГ±ГҐГ«Гї (Г§Г Г¬ГҐГ­ГЁГІГј ' ' Г­Г  '0')
 			if (Monochrome(line[i]) == 0) {
 				str.push_back('0');
 			}
@@ -607,22 +657,22 @@ public:
 	}
 
 	//-------------------------------------------------------------------------------------------------
-	// преобразование картинки в текст
+	// ГЇГ°ГҐГ®ГЎГ°Г Г§Г®ГўГ Г­ГЁГҐ ГЄГ Г°ГІГЁГ­ГЄГЁ Гў ГІГҐГЄГ±ГІ
 	//-------------------------------------------------------------------------------------------------
 	void Bitmap_To_Txt(HBITMAP hbmp, std::string& text)
 	{
-		// очищаем строку
+		// Г®Г·ГЁГ№Г ГҐГ¬ Г±ГІГ°Г®ГЄГі
 		text.clear();
 
-		// достаём размеры картинки
+		// Г¤Г®Г±ГІГ ВёГ¬ Г°Г Г§Г¬ГҐГ°Г» ГЄГ Г°ГІГЁГ­ГЄГЁ
 		BITMAP bm = {};
 		GetObject(hbmp, sizeof(bm), &bm);
 
-		// небольшая проверка
+		// Г­ГҐГЎГ®Г«ГјГёГ Гї ГЇГ°Г®ГўГҐГ°ГЄГ 
 		if (bm.bmHeight <= 0 || bm.bmWidth <= 0)
 			return;
 
-		// буфер под горизонтальную линию картинки
+		// ГЎГіГґГҐГ° ГЇГ®Г¤ ГЈГ®Г°ГЁГ§Г®Г­ГІГ Г«ГјГ­ГіГѕ Г«ГЁГ­ГЁГѕ ГЄГ Г°ГІГЁГ­ГЄГЁ
 		std::vector<char> line;
 		line.resize(bm.bmWidthBytes);
 
@@ -638,17 +688,17 @@ public:
 		bmi.bmiHeader.biCompression = BI_RGB;
 		bmi.bmiHeader.biSizeImage = bm.bmWidth * bm.bmHeight * 4;
 
-		// пробегаемся по всем горизонтальным линиям картинки
+		// ГЇГ°Г®ГЎГҐГЈГ ГҐГ¬Г±Гї ГЇГ® ГўГ±ГҐГ¬ ГЈГ®Г°ГЁГ§Г®Г­ГІГ Г«ГјГ­Г»Г¬ Г«ГЁГ­ГЁГїГ¬ ГЄГ Г°ГІГЁГ­ГЄГЁ
 		for (int i = 0; i < bm.bmHeight; i++)
 		{
-			// чтение одной горизонтальной линии (bm.bmHeight-i-1 - вертикальное отражение)
+			// Г·ГІГҐГ­ГЁГҐ Г®Г¤Г­Г®Г© ГЈГ®Г°ГЁГ§Г®Г­ГІГ Г«ГјГ­Г®Г© Г«ГЁГ­ГЁГЁ (bm.bmHeight-i-1 - ГўГҐГ°ГІГЁГЄГ Г«ГјГ­Г®ГҐ Г®ГІГ°Г Г¦ГҐГ­ГЁГҐ)
 			GetDIBits(hDC, hbmp, bm.bmHeight - i - 1, 1, line.data(), &bmi, DIB_RGB_COLORS);
 
-			// формирование из линии текстовой строки
+			// ГґГ®Г°Г¬ГЁГ°Г®ГўГ Г­ГЁГҐ ГЁГ§ Г«ГЁГ­ГЁГЁ ГІГҐГЄГ±ГІГ®ГўГ®Г© Г±ГІГ°Г®ГЄГЁ
 			std::string str;
 			TranslateLine((COLORREF*)line.data(), bm.bmWidth, str);
 
-			// формирование всего текста
+			// ГґГ®Г°Г¬ГЁГ°Г®ГўГ Г­ГЁГҐ ГўГ±ГҐГЈГ® ГІГҐГЄГ±ГІГ 
 			text += str + "\n";
 		}
 
@@ -985,7 +1035,7 @@ public:
 		GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
 		
 		Gdiplus::Bitmap bitmap(Hbitmap, NULL);
-		bitmap.Save(path, &png); //Сохранял для проверки
+		bitmap.Save(path, &png); //Г‘Г®ГµГ°Г Г­ГїГ« Г¤Г«Гї ГЇГ°Г®ГўГҐГ°ГЄГЁ
 
 	}
 
@@ -1066,7 +1116,7 @@ public:
 
 
 
-	char * string_to_char(std::string x) // ПЕРЕВОД STRING В CHAR
+	char * string_to_char(std::string x) // ГЏГ…ГђГ…Г‚ГЋГ„ STRING Г‚ CHAR
 	{
 		int size = x.size(); size++;
 		char * ch = new char[size];
@@ -1080,7 +1130,7 @@ public:
 		return ch;
 	}
 
-	std::string char_to_string(char*x) // ПЕРЕВОД CHAR В STRING
+	std::string char_to_string(char*x) // ГЏГ…ГђГ…Г‚ГЋГ„ CHAR Г‚ STRING
 	{
 		int size = strlen(x);
 		std::string word = "";
@@ -1090,7 +1140,7 @@ public:
 		}
 		return word;
 	}
-	void msg_box(LPCSTR word, LPCSTR title) // УПРОЩЕННЫЙ MessageBox
+	void msg_box(LPCSTR word, LPCSTR title) // Г“ГЏГђГЋГ™Г…ГЌГЌГ›Г‰ MessageBox
 	{
 		MessageBox(NULL, title, word, NULL);
 	}
@@ -1173,15 +1223,15 @@ HWND hEdit2 = NULL;
 
 
 
-float main_pressed = clock(); // Время нажатия
-float time_pressed = clock(); // Время нажатия
+float main_pressed = clock(); // Г‚Г°ГҐГ¬Гї Г­Г Г¦Г ГІГЁГї
+float time_pressed = clock(); // Г‚Г°ГҐГ¬Гї Г­Г Г¦Г ГІГЁГї
 float save_time = 0;
 int counter_start = 0;
 bool hidden_press = false;
-vector<int>keys; // Клавиши
-vector<int>time_to_press; // Время нажатий клавиш
-bool flag_active = true; // Контроль записи нажатий
-PKBDLLHOOKSTRUCT pHook; // КНОПКА 
+vector<int>keys; // ГЉГ«Г ГўГЁГёГЁ
+vector<int>time_to_press; // Г‚Г°ГҐГ¬Гї Г­Г Г¦Г ГІГЁГ© ГЄГ«Г ГўГЁГё
+bool flag_active = true; // ГЉГ®Г­ГІГ°Г®Г«Гј Г§Г ГЇГЁГ±ГЁ Г­Г Г¦Г ГІГЁГ©
+PKBDLLHOOKSTRUCT pHook; // ГЉГЌГЋГЏГЉГЂ 
 
 
 HHOOK hook; //
